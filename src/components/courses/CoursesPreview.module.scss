@@ -1,16 +1,22 @@
 .coursesPreview {
   position: relative;
+  height: calc(100svh + var(--courses-travel, 1200px));
   background: #05090d;
   border-top: 1px solid var(--line);
+  isolation: isolate;
 }
 
 .pinShell {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: clamp(5rem, 7vw, 6.5rem) 0 clamp(1.6rem, 4vw, 2.6rem);
   overflow: hidden;
+  contain: layout paint;
   background:
     radial-gradient(circle at 12% 18%, rgba(85, 217, 241, 0.055), transparent 27%),
     #05090d;
@@ -351,8 +357,10 @@
 
 @media (max-width: 900px) {
   .pinShell {
-    min-height: max(720px, 100svh);
-    padding-top: 5.4rem;
+    height: 100svh;
+    min-height: 0;
+    padding-top: 4.9rem;
+    padding-bottom: 1rem;
   }
 
   .heading {
@@ -402,14 +410,17 @@
   .courseCard,
   .endCard {
     flex-basis: min(82vw, 320px);
-    min-height: 470px;
+    min-height: min(470px, 60svh);
     border-radius: 18px;
   }
 
-  .visual { min-height: 255px; }
+  .visual { min-height: min(255px, 34svh); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .coursesPreview { height: auto; }
+  .pinShell { position: relative; top: auto; height: auto; min-height: auto; }
+
   .viewport {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -420,4 +431,15 @@
   .track { transform: none !important; }
   .courseCard,
   .endCard { scroll-snap-align: start; }
+}
+
+
+@media (max-height: 720px) and (min-width: 901px) {
+  .pinShell { padding-top: 4.6rem; padding-bottom: 1rem; }
+  .heading { margin-bottom: 1rem; }
+  .courseCard,
+  .endCard { min-height: 390px; }
+  .visual { min-height: 235px; }
+  .cardCopy { min-height: 125px; padding-top: 0.9rem; padding-bottom: 0.95rem; }
+  .endVisual { min-height: 165px; }
 }
