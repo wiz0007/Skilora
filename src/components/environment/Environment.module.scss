@@ -407,3 +407,58 @@
     padding: 0.45rem;
   }
 }
+
+/* Real-world media sits behind the product UI so each community card feels lived-in. */
+.cardVisual {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.realMedia {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(0.78) contrast(1.04);
+  transform: scale(1.01);
+}
+
+.mediaShade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(4, 10, 14, 0.32), rgba(4, 10, 14, 0.06) 55%),
+    linear-gradient(180deg, rgba(4, 10, 14, 0.18), rgba(4, 10, 14, 0.58));
+  pointer-events: none;
+}
+
+.cardVisual .visualCanvas {
+  position: absolute;
+  z-index: 2;
+  left: clamp(0.7rem, 2vw, 1.4rem);
+  right: clamp(0.7rem, 2vw, 1.4rem);
+  bottom: clamp(0.7rem, 2vw, 1.4rem);
+  height: min(72%, 440px);
+  min-height: 250px;
+  background:
+    linear-gradient(rgba(85, 217, 241, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(85, 217, 241, 0.028) 1px, transparent 1px),
+    rgba(5, 14, 20, 0.88);
+  background-size: 42px 42px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 900px) {
+  .cardVisual .visualCanvas {
+    height: calc(100% - 1rem);
+    min-height: 0;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+  }
+}

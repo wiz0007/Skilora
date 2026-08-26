@@ -60,11 +60,18 @@ const Idea = () => {
                   <span className={styles.icon}><Icon /></span>
                 </div>
 
-                <div className={styles.panelVisual} aria-hidden="true">
-                  <div className={styles.orbitOne} />
-                  <div className={styles.orbitTwo} />
-                  <span className={styles.visualIcon}><Icon /></span>
-                  <span className={styles.visualLabel}>{item.accent}</span>
+                <div className={styles.panelVisual}>
+                  <img
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className={styles.mediaShade} aria-hidden="true" />
+                  <div className={styles.mediaBadge}>
+                    <span className={styles.visualIcon} aria-hidden="true"><Icon /></span>
+                    <span className={styles.visualLabel}>{item.accent}</span>
+                  </div>
                 </div>
 
                 <div className={styles.panelCopy}>
