@@ -52,7 +52,6 @@ const CoursesPreview = () => {
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 2,
-          fastScrollEnd: true,
           onEnter: () => { track.style.willChange = "transform"; },
           onEnterBack: () => { track.style.willChange = "transform"; },
           onLeave: () => { track.style.willChange = "auto"; },

@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { FaChalkboardTeacher, FaGraduationCap } from "react-icons/fa";
 import styles from "./Connect.module.scss";
 import { MAIN_SITE_URL } from "../../constants/site";
+import { editorialMedia } from "../../content/homeContent";
 import { premiumEase, revealUp, viewportOnce } from "../../utilities/motion";
 
 const paths = [
@@ -14,6 +15,7 @@ const paths = [
     copy: "Explore practical learning paths, compare mentors, and book help when you need it.",
     icon: FaGraduationCap,
     tags: ["Discover", "Book", "Progress"],
+    image: editorialMedia.learnerLecture,
   },
   {
     id: "mentor",
@@ -23,6 +25,7 @@ const paths = [
     copy: "Create focused learning experiences, guide sessions, and build trust through useful work.",
     icon: FaChalkboardTeacher,
     tags: ["Teach", "Guide", "Earn"],
+    image: editorialMedia.mentorLibrary,
   },
 ];
 
@@ -57,6 +60,14 @@ const Connect = () => {
                 onFocus={() => setActive(path.id)}
                 whileTap={reduceMotion ? undefined : { scale: 0.99 }}
               >
+                <img
+                  className={styles.pathMedia}
+                  src={path.image.src}
+                  alt={path.image.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className={styles.pathShade} aria-hidden="true" />
                 <span className={styles.pathGlow} aria-hidden="true" />
                 <div className={styles.pathTop}>
                   <span>{path.index}</span>

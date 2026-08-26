@@ -117,7 +117,6 @@ const Environment = () => {
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 1,
-          fastScrollEnd: true,
           onEnter: () => setActiveLayers(true),
           onEnterBack: () => setActiveLayers(true),
           onLeave: () => setActiveLayers(false),
@@ -208,6 +207,14 @@ const Environment = () => {
                 </div>
 
                 <div className={styles.cardVisual}>
+                  <img
+                    className={styles.realMedia}
+                    src={feature.image.src}
+                    alt={feature.image.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className={styles.mediaShade} aria-hidden="true" />
                   <CommunityVisual type={feature.visual} />
                 </div>
               </article>

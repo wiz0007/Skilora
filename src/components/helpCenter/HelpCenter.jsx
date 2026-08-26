@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import styles from "./HelpCenter.module.scss";
-import { supportItems } from "../../content/homeContent";
+import { editorialMedia, supportItems } from "../../content/homeContent";
 import { MAIN_SITE_URL } from "../../constants/site";
 import { premiumEase, revealUp, viewportOnce } from "../../utilities/motion";
 
@@ -74,14 +74,26 @@ const HelpCenter = () => {
                 exit={reduceMotion ? undefined : { opacity: 0, x: -14 }}
                 transition={{ duration: reduceMotion ? 0 : 0.32, ease: premiumEase }}
               >
-                <div className={styles.detailIcon}><ActiveIcon /></div>
-                <span className={styles.detailLabel}>{active.title}</span>
-                <h3>{active.response}</h3>
-                <p>{active.copy}</p>
+                <div className={styles.detailMedia}>
+                  <img
+                    src={editorialMedia.support.src}
+                    alt={editorialMedia.support.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span><i /> Human support when context matters</span>
+                </div>
 
-                <div className={styles.contextGrid}>
-                  <div><span>01</span><strong>Bring context</strong><small>Booking, account, or transaction details.</small></div>
-                  <div><span>02</span><strong>Keep a record</strong><small>Support stays tied to the relevant activity.</small></div>
+                <div className={styles.detailContent}>
+                  <div className={styles.detailIcon}><ActiveIcon /></div>
+                  <span className={styles.detailLabel}>{active.title}</span>
+                  <h3>{active.response}</h3>
+                  <p>{active.copy}</p>
+
+                  <div className={styles.contextGrid}>
+                    <div><span>01</span><strong>Bring context</strong><small>Booking, account, or transaction details.</small></div>
+                    <div><span>02</span><strong>Keep a record</strong><small>Support stays tied to the relevant activity.</small></div>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>

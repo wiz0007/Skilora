@@ -68,3 +68,60 @@
 @media (prefers-reduced-motion: reduce) {
   .path, .pathGlow { transition: none; }
 }
+
+/* Learner and mentor paths are now grounded in real people, not abstract surfaces. */
+.pathMedia,
+.pathShade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pathMedia {
+  z-index: -3;
+  display: block;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(1.03);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.path:first-child .pathMedia {
+  object-position: 58% center;
+}
+
+.path:nth-child(2) .pathMedia {
+  object-position: 50% center;
+}
+
+.pathShade {
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(3, 8, 12, 0.2) 0%, rgba(3, 8, 12, 0.2) 32%, rgba(3, 8, 12, 0.93) 78%, rgba(3, 8, 12, 0.98) 100%),
+    linear-gradient(90deg, rgba(3, 8, 12, 0.42), transparent 66%);
+}
+
+.path:hover .pathMedia,
+.activePath .pathMedia {
+  transform: scale(1.035);
+}
+
+.pathTop,
+.pathBody,
+.pathFooter {
+  position: relative;
+  z-index: 2;
+}
+
+.pathTop > span:first-child,
+.label,
+.pathBody p,
+.tags span {
+  color: rgba(230, 241, 246, 0.78);
+}
+
+@media (max-width: 560px) {
+  .pathMedia {
+    object-position: center 35%;
+  }
+}
