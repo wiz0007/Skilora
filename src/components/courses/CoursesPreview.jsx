@@ -12,46 +12,46 @@ ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
 
 const CoursesPreview = () => {
   const sectionRef = useRef(null);
-  const pinRef = useRef(null);
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
   const reduceMotion = useReducedMotion();
 
   useLayoutEffect(() => {
-    if (reduceMotion || !sectionRef.current || !pinRef.current || !viewportRef.current || !trackRef.current) {
+    if (reduceMotion || !sectionRef.current || !viewportRef.current || !trackRef.current) {
       return undefined;
     }
 
     const section = sectionRef.current;
-    const pin = pinRef.current;
     const viewport = viewportRef.current;
     const track = trackRef.current;
 
     const context = gsap.context(() => {
       const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
       const getDistance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
-      const getEndDistance = () => Math.max(
-        window.innerHeight * (isMobile() ? 1.2 : 1.05),
-        getDistance() * (isMobile() ? 1.08 : 0.98),
-      );
+      const getTravel = () => {
+        const distance = getDistance();
+        const viewportTravel = window.innerHeight * (isMobile() ? 1.35 : 1.15);
+        return Math.max(viewportTravel, distance * (isMobile() ? 1.2 : 1.05));
+      };
 
+      const syncSectionHeight = () => {
+        section.style.setProperty("--courses-travel", `${Math.ceil(getTravel())}px`);
+      };
+
+      syncSectionHeight();
       gsap.set(track, { x: 0, force3D: true });
 
-      const horizontalTween = gsap.to(track, {
-        x: () => -getDistance(),
-        ease: "none",
-        force3D: true,
+      const timeline = gsap.timeline({
+        defaults: { ease: "none" },
         scrollTrigger: {
           id: "skillsphere-courses-horizontal",
-          trigger: pin,
-          start: () => (isMobile() ? "top 68px" : "top top"),
-          end: () => `+=${getEndDistance()}`,
-          pin,
-          pinSpacing: true,
-          scrub: isMobile() ? 0.2 : 0.3,
-          anticipatePin: 1,
+          trigger: section,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
           invalidateOnRefresh: true,
           refreshPriority: 2,
+          onRefreshInit: syncSectionHeight,
           onEnter: () => { track.style.willChange = "transform"; },
           onEnterBack: () => { track.style.willChange = "transform"; },
           onLeave: () => { track.style.willChange = "auto"; },
@@ -59,10 +59,24 @@ const CoursesPreview = () => {
         },
       });
 
+      // Let the section settle into its sticky viewport before horizontal motion begins.
+      timeline
+        .to(track, { x: 0, duration: 0.14 })
+        .to(track, { x: () => -getDistance(), duration: 0.72 })
+        .to(track, { x: () => -getDistance(), duration: 0.14 });
+
+      const resizeObserver = new ResizeObserver(() => {
+        syncSectionHeight();
+      });
+      resizeObserver.observe(viewport);
+      resizeObserver.observe(track);
+
       return () => {
+        resizeObserver.disconnect();
+        section.style.removeProperty("--courses-travel");
         track.style.willChange = "auto";
-        horizontalTween.scrollTrigger?.kill();
-        horizontalTween.kill();
+        timeline.scrollTrigger?.kill();
+        timeline.kill();
       };
     }, section);
 
@@ -71,7 +85,7 @@ const CoursesPreview = () => {
 
   return (
     <section ref={sectionRef} className={styles.coursesPreview} id="courses" aria-labelledby="courses-title">
-      <div ref={pinRef} className={styles.pinShell}>
+      <div className={styles.pinShell}>
         <div className={styles.headingWrap}>
           <motion.header
             className={styles.heading}

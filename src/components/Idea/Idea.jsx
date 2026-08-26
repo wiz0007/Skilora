@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import styles from "./Idea.module.scss";
 import { ideaCards } from "../../content/homeContent";
 import { premiumEase, revealUp, viewportOnce } from "../../utilities/motion";
@@ -7,6 +7,7 @@ import { premiumEase, revealUp, viewportOnce } from "../../utilities/motion";
 const Idea = () => {
   const reduceMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = ideaCards[activeIndex];
 
   return (
     <section className={styles.mainIdea} id="idea" aria-labelledby="idea-title">
@@ -35,9 +36,20 @@ const Idea = () => {
             ))}
           </div>
 
-          <div className={styles.activeCaption} aria-live="polite">
-            <span>{ideaCards[activeIndex].accent}</span>
-            <strong>{ideaCards[activeIndex].label}</strong>
+          <div className={styles.activeStory} aria-live="polite">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeItem.id}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: reduceMotion ? 0 : 0.32, ease: premiumEase }}
+              >
+                <span>{activeItem.accent}</span>
+                <p>{activeItem.copy}</p>
+                <small>{activeItem.detail}</small>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </motion.header>
 
@@ -50,10 +62,10 @@ const Idea = () => {
                 className={styles.storyPanel}
                 key={item.id}
                 onViewportEnter={() => setActiveIndex(index)}
-                viewport={{ amount: 0.58 }}
-                initial={reduceMotion ? false : { opacity: 0.32, y: 28, scale: 0.985 }}
+                viewport={{ amount: 0.62 }}
+                initial={reduceMotion ? false : { opacity: 0.5, y: 20, scale: 0.99 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: reduceMotion ? 0 : 0.58, ease: premiumEase }}
+                transition={{ duration: reduceMotion ? 0 : 0.5, ease: premiumEase }}
               >
                 <div className={styles.panelTop}>
                   <span className={styles.number}>{item.id}</span>
@@ -68,17 +80,14 @@ const Idea = () => {
                     decoding="async"
                   />
                   <div className={styles.mediaShade} aria-hidden="true" />
-                  <div className={styles.mediaBadge}>
-                    <span className={styles.visualIcon} aria-hidden="true"><Icon /></span>
+                  <div className={styles.mediaBadge} aria-hidden="true">
+                    <span className={styles.visualIcon}><Icon /></span>
                     <span className={styles.visualLabel}>{item.accent}</span>
                   </div>
-                </div>
-
-                <div className={styles.panelCopy}>
-                  <span>{item.label}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.copy}</p>
-                  <small>{item.detail}</small>
+                  <div className={styles.panelHeadline}>
+                    <span>{item.label}</span>
+                    <h3>{item.title}</h3>
+                  </div>
                 </div>
               </motion.article>
             );

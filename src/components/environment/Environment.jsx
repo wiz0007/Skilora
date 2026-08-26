@@ -1,12 +1,13 @@
-import React, { useLayoutEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useRef } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import styles from "./Environment.module.scss";
 import { communityFeatures } from "../../content/homeContent";
 import { revealUp, viewportOnce } from "../../utilities/motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const CommunityVisual = ({ type }) => {
   if (type === "chat") {
@@ -75,97 +76,86 @@ const CommunityVisual = ({ type }) => {
   );
 };
 
-const Environment = () => {
-  const sectionRef = useRef(null);
-  const deckRef = useRef(null);
-  const reduceMotion = useReducedMotion();
+const CommunityCard = ({ feature, index, total, progress, reduceMotion }) => {
+  const Icon = feature.icon;
+  const introHold = 0.12;
+  const outroHold = 0.12;
+  const usableProgress = 1 - introHold - outroHold;
+  const segment = total > 1 ? usableProgress / (total - 1) : usableProgress;
 
-  useLayoutEffect(() => {
-    if (reduceMotion || !sectionRef.current || !deckRef.current) return undefined;
+  const entryStart = index === 0 ? 0 : introHold + ((index - 1) * segment);
+  const entryEnd = index === 0 ? 0.001 : Math.min(entryStart + (segment * 0.76), 1 - outroHold);
+  const nextStart = index < total - 1 ? introHold + (index * segment) : 1 - outroHold;
+  const nextEnd = index < total - 1
+    ? Math.min(nextStart + (segment * 0.76), 1 - outroHold)
+    : 1;
 
-    const deck = deckRef.current;
-
-    const context = gsap.context(() => {
-      const cards = gsap.utils.toArray("[data-community-card]");
-      if (cards.length < 2) return undefined;
-
-      const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
-
-      gsap.set(cards, {
-        zIndex: (index) => index + 1,
-        transformOrigin: "50% 20%",
-        force3D: true,
-      });
-      gsap.set(cards.slice(1), { yPercent: 106, force3D: true });
-
-      const setActiveLayers = (active) => {
-        cards.forEach((card) => {
-          card.style.willChange = active ? "transform, opacity" : "auto";
-        });
-      };
-
-      const timeline = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          id: "skillsphere-community-stack",
-          trigger: deck,
-          start: () => (isMobile() ? "top 72px" : "top 9%"),
-          end: () => `+=${Math.max(window.innerHeight * (cards.length - 1) * (isMobile() ? 0.72 : 0.78), 1180)}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: isMobile() ? 0.22 : 0.3,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          refreshPriority: 1,
-          onEnter: () => setActiveLayers(true),
-          onEnterBack: () => setActiveLayers(true),
-          onLeave: () => setActiveLayers(false),
-          onLeaveBack: () => setActiveLayers(false),
-        },
-      });
-
-      cards.slice(1).forEach((card, index) => {
-        const previous = cards[index];
-        const label = `card-${index + 1}`;
-
-        timeline
-          .addLabel(label)
-          .to(
-            previous,
-            {
-              scale: 0.972,
-              y: -10,
-              opacity: 0.68,
-              duration: 0.38,
-              force3D: true,
-            },
-            label,
-          )
-          .to(
-            card,
-            {
-              yPercent: 0,
-              duration: 0.62,
-              force3D: true,
-            },
-            label,
-          );
-      });
-
-      timeline.to(cards[cards.length - 1], { duration: 0.08 });
-
-      return () => {
-        setActiveLayers(false);
-        timeline.scrollTrigger?.kill();
-        timeline.kill();
-      };
-    }, sectionRef);
-
-    return () => context.revert();
-  }, [reduceMotion]);
+  const y = useTransform(
+    progress,
+    [entryStart, Math.max(entryStart + 0.001, entryEnd)],
+    index === 0 ? ["0%", "0%"] : ["104%", "0%"],
+  );
+  const scale = useTransform(
+    progress,
+    [nextStart, Math.max(nextStart + 0.001, nextEnd)],
+    index < total - 1 ? [1, 0.976] : [1, 1],
+  );
+  const opacity = useTransform(
+    progress,
+    [nextStart, Math.max(nextStart + 0.001, nextEnd)],
+    index < total - 1 ? [1, 0.74] : [1, 1],
+  );
 
   return (
-    <section ref={sectionRef} className={styles.environment} id="community" aria-labelledby="community-title">
+    <motion.article
+      className={styles.card}
+      data-community-card
+      style={reduceMotion ? { zIndex: index + 1 } : { y, scale, opacity, zIndex: index + 1 }}
+    >
+      <div className={styles.cardBackdrop} aria-hidden="true" />
+
+      <div className={styles.cardCopy}>
+        <div className={styles.cardTopline}>
+          <span className={styles.cardNumber}>0{index + 1}</span>
+          <div className={styles.cardIcon}><Icon /></div>
+        </div>
+        <div className={styles.cardBody}>
+          <span className={styles.panelEyebrow}>{feature.eyebrow}</span>
+          <h3>{feature.title}</h3>
+          <p>{feature.copy}</p>
+          <small>{feature.meta}</small>
+        </div>
+      </div>
+
+      <div className={styles.cardVisual}>
+        {feature.image?.src && (
+          <img
+            className={styles.realMedia}
+            src={feature.image.src}
+            alt={feature.image.alt || ""}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding="async"
+          />
+        )}
+        <div className={styles.mediaShade} aria-hidden="true" />
+        <CommunityVisual type={feature.visual} />
+      </div>
+    </motion.article>
+  );
+};
+
+const Environment = () => {
+  const storyRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: storyRef,
+    offset: ["start start", "end end"],
+  });
+
+  const storyHeight = `${120 + (Math.max(communityFeatures.length - 1, 0) * 78)}svh`;
+
+  return (
+    <section className={styles.environment} id="community" aria-labelledby="community-title">
       <div className={styles.headingWrap}>
         <motion.header
           className={styles.heading}
@@ -180,46 +170,26 @@ const Environment = () => {
         </motion.header>
       </div>
 
-      <div ref={deckRef} className={styles.deck}>
-        <div className={styles.deckFrame}>
-          {communityFeatures.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <article
-                className={styles.card}
-                data-community-card
-                key={feature.id}
-                style={{ "--card-index": index }}
-              >
-                <div className={styles.cardBackdrop} aria-hidden="true" />
-
-                <div className={styles.cardCopy}>
-                  <div className={styles.cardTopline}>
-                    <span className={styles.cardNumber}>0{index + 1}</span>
-                    <div className={styles.cardIcon}><Icon /></div>
-                  </div>
-                  <div className={styles.cardBody}>
-                    <span className={styles.panelEyebrow}>{feature.eyebrow}</span>
-                    <h3>{feature.title}</h3>
-                    <p>{feature.copy}</p>
-                    <small>{feature.meta}</small>
-                  </div>
-                </div>
-
-                <div className={styles.cardVisual}>
-                  <img
-                    className={styles.realMedia}
-                    src={feature.image.src}
-                    alt={feature.image.alt}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className={styles.mediaShade} aria-hidden="true" />
-                  <CommunityVisual type={feature.visual} />
-                </div>
-              </article>
-            );
-          })}
+      <div
+        ref={storyRef}
+        className={styles.story}
+        style={reduceMotion ? undefined : { "--community-story-height": storyHeight }}
+      >
+        <div className={styles.stickyScene}>
+          <div className={styles.deck}>
+            <div className={styles.deckFrame}>
+              {communityFeatures.map((feature, index) => (
+                <CommunityCard
+                  key={feature.id}
+                  feature={feature}
+                  index={index}
+                  total={communityFeatures.length}
+                  progress={scrollYProgress}
+                  reduceMotion={reduceMotion}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
